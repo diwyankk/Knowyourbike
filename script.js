@@ -1,409 +1,1203 @@
 // ============================================
-// COMPREHENSIVE BIKE DATABASE
+// CONFIGURATION & API SETTINGS
 // ============================================
-const bikeData = [
-    {
-        id: 1,
-        name: "Yamaha YZF-R1",
-        brand: "Yamaha",
-        price: 17499,
-        engineCC: 998,
-        mileage: 15, // km/l
-        type: "Sport",
-        abs: "Dual Channel",
-        fuelType: "Petrol",
-        featured: true,
-        imageUrl: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800",
-        specs: {
-            topSpeed: 299,
-            brakes: "Dual Disc (Front), Disc (Rear)",
-            fuelCapacity: 17,
-            comfort: "Aggressive sport riding position",
-            suspension: "Fully adjustable front and rear",
-            tyres: "120/70-ZR17, 190/55-ZR17",
-            maintenance: "High",
-            pickup: "Extremely fast (0-100 km/h in ~2.9s)"
-        },
-        buyLink: "https://www.yamaha-motor.com"
-    },
-    {
-        id: 2,
-        name: "Harley-Davidson Street Glide",
-        brand: "Harley-Davidson",
-        price: 21999,
-        engineCC: 1868,
-        mileage: 18,
-        type: "Cruiser",
-        abs: "Standard",
-        fuelType: "Petrol",
-        featured: true,
-        imageUrl: "https://images.unsplash.com/photo-1528778591256-2b6e38df58f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800",
-        specs: {
-            topSpeed: 180,
-            brakes: "Disc (Front & Rear)",
-            fuelCapacity: 22.7,
-            comfort: "Excellent, relaxed cruiser posture",
-            suspension: "Twin shock rear, telescopic front",
-            tyres: "130/60B19, 180/65B16",
-            maintenance: "Medium-High",
-            pickup: "Strong low-end torque"
-        },
-        buyLink: "https://www.harley-davidson.com"
-    },
-    {
-        id: 3,
-        name: "Honda CB Shine",
-        brand: "Honda",
-        price: 85000, // Price in USD for example
-        engineCC: 125,
-        mileage: 65,
-        type: "Commuter",
-        abs: "No ABS",
-        fuelType: "Petrol",
-        featured: false,
-        imageUrl: "https://images.unsplash.com/photo-1535043169395-8a74f8ce6b47?ixlib=rb-4.0.3&auto=format&fit=crop&w=800",
-        specs: {
-            topSpeed: 100,
-            brakes: "Drum (Front & Rear)",
-            fuelCapacity: 10.5,
-            comfort: "Very comfortable for city commute",
-            suspension: "Telescopic front, twin shock rear",
-            tyres: "80/100-18, 80/100-18",
-            maintenance: "Very Low",
-            pickup: "Adequate for city traffic"
-        },
-        buyLink: "https://www.honda2wheelersindia.com"
-    },
-    // You can add 20+ more bike objects here following the same structure
-    // Example for a future "Coming Soon" bike:
-    {
-        id: 99,
-        name: "Kawasaki Ninja H2R (2027)",
-        brand: "Kawasaki",
-        price: 55000,
-        engineCC: 998,
-        mileage: 12,
-        type: "Sport",
-        abs: "Dual Channel",
-        fuelType: "Petrol",
-        featured: true,
-        imageUrl: "",
-        specs: {
-            topSpeed: 400,
-            brakes: "Top Spec Race Disc",
-            fuelCapacity: 17,
-            comfort: "Track-focused",
-            suspension: "Top-line Öhlins",
-            tyres: "Slick race tyres",
-            maintenance: "Extremely High",
-            pickup: "Supercharged acceleration"
-        },
-        buyLink: "#",
-        comingSoon: true // Special flag for coming soon feature
+const CONFIG = {
+    // IMPORTANT: Replace this with your actual API key
+    API_KEY: 'QpAMb4nTe+g9lC2HuUk5/A==ix6JT13zf7Tat7V2',
+    API_URL: 'https://api.api-ninjas.com/v1/motorcycles',
+    
+    // Google Custom Search Engine ID (You need to create this)
+    GOOGLE_CSE_ID: 'YOUR_GOOGLE_CSE_ID',
+    
+    // Image fallback service
+    IMAGE_SERVICE: 'https://source.unsplash.com/featured/?motorcycle,',
+    
+    // Pagination
+    ITEMS_PER_PAGE: 12,
+    
+    // Featured lists (you can customize these)
+    TOP_10_BIKES: ['Yamaha YZF-R1', 'Kawasaki Ninja H2', 'Ducati Panigale V4', 
+                  'BMW S1000RR', 'Harley-Davidson Street Glide', 'Honda CBR1000RR',
+                  'Triumph Tiger 1200', 'KTM 1290 Super Duke R', 'Suzuki Hayabusa',
+                  'Indian Chief'],
+    
+    TRENDING_BIKES: ['Electric Motorcycles', 'Royal Enfield Classic 350', 
+                    'KTM 390 Duke', 'Yamaha MT-07', 'Honda ADV350']
+};
+
+// ============================================
+// GLOBAL STATE VARIABLES
+// ============================================
+let allBikes = [];
+let currentBikes = [];
+let currentPage = 1;
+let totalPages = 1;
+let selectedBikes = [];
+let filters = {
+    brand: '',
+    cc: '',
+    price: '',
+    fuel: '',
+    abs: '',
+    type: ''
+};
+
+// ============================================
+// DOM ELEMENTS
+// ============================================
+const elements = {
+    bikeListing: document.getElementById('bikeListing'),
+    bikeCount: document.getElementById('bikeCount'),
+    pagination: document.getElementById('pagination'),
+    filterBrand: document.getElementById('filterBrand'),
+    filterCC: document.getElementById('filterCC'),
+    filterPrice: document.getElementById('filterPrice'),
+    filterFuel: document.getElementById('filterFuel'),
+    filterABS: document.getElementById('filterABS'),
+    filterType: document.getElementById('filterType'),
+    applyFilters: document.getElementById('applyFilters'),
+    resetFilters: document.getElementById('resetFilters'),
+    sortSelect: document.getElementById('sortSelect'),
+    trendingBikes: document.getElementById('trendingBikes'),
+    top10Bikes: document.getElementById('top10Bikes'),
+    compare1: document.getElementById('compare1'),
+    compare2: document.getElementById('compare2'),
+    compare3: document.getElementById('compare3'),
+    runComparison: document.getElementById('runComparison'),
+    comparisonResults: document.getElementById('comparisonResults'),
+    
+    // EMI Calculator Elements
+    bikePrice: document.getElementById('bikePrice'),
+    downPayment: document.getElementById('downPayment'),
+    interestRate: document.getElementById('interestRate'),
+    interestValue: document.getElementById('interestValue'),
+    loanTenure: document.getElementById('loanTenure'),
+    tenureValue: document.getElementById('tenureValue'),
+    calculateEMI: document.getElementById('calculateEMI'),
+    monthlyEMI: document.getElementById('monthlyEMI'),
+    totalInterest: document.getElementById('totalInterest'),
+    totalPayment: document.getElementById('totalPayment')
+};
+
+// ============================================
+// MAIN INITIALIZATION
+// ============================================
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Initializing WorldBikeHub...');
+    
+    // Initialize all components
+    await initializeBikeData();
+    initializeFilters();
+    initializeEMICalculator();
+    initializeComparisonTool();
+    initializeDonationButtons();
+    initializeMobileMenu();
+    
+    // Load featured sections
+    loadFeaturedSections();
+    
+    console.log('WorldBikeHub initialized successfully!');
+});
+
+// ============================================
+// BIKE DATA MANAGEMENT
+// ============================================
+async function initializeBikeData() {
+    try {
+        showLoadingState();
+        
+        // For demo, we'll load multiple brands
+        const brands = ['honda', 'yamaha', 'kawasaki', 'suzuki', 'bmw', 'ducati'];
+        
+        // Fetch bikes from multiple brands
+        const fetchPromises = brands.map(brand => fetchBikesFromAPI(brand));
+        const results = await Promise.all(fetchPromises);
+        
+        // Combine all bikes
+        allBikes = results.flat();
+        
+        // Remove duplicates based on make + model
+        allBikes = removeDuplicates(allBikes);
+        
+        // Add image URLs to each bike
+        allBikes = await enhanceBikesWithImages(allBikes);
+        
+        // Initialize current bikes and display
+        currentBikes = [...allBikes];
+        displayBikes(currentPage);
+        populateBrandFilter();
+        populateComparisonDropdowns();
+        
+        updateBikeCount();
+        
+    } catch (error) {
+        console.error('Error initializing bike data:', error);
+        showErrorState('Failed to load bike data. Please try again later.');
     }
-];
+}
+
+async function fetchBikesFromAPI(brand = '') {
+    try {
+        const response = await fetch(`${CONFIG.API_URL}?make=${brand}`, {
+            headers: {
+                'X-Api-Key': CONFIG.API_KEY,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+        
+    } catch (error) {
+        console.error(`Error fetching ${brand} bikes:`, error);
+        return [];
+    }
+}
+
+function removeDuplicates(bikes) {
+    const seen = new Set();
+    return bikes.filter(bike => {
+        const key = `${bike.make}-${bike.model}-${bike.year}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+async function enhanceBikesWithImages(bikes) {
+    return bikes.map(bike => {
+        // Generate image URL based on bike details
+        const imageSearch = `${bike.make}+${bike.model}+${bike.year}`;
+        return {
+            ...bike,
+            imageUrl: `${CONFIG.IMAGE_SERVICE}${encodeURIComponent(imageSearch)}`,
+            formattedPrice: formatPrice(bike.price || 0),
+            formattedCC: formatCC(bike.displacement || 0)
+        };
+    });
+}
 
 // ============================================
-// GLOBAL VARIABLES & DOM ELEMENTS
+// DISPLAY FUNCTIONS
 // ============================================
-let currentBikes = [...bikeData]; // Copy of data for filtering
-const bikeListingEl = document.getElementById('bikeListing');
-const featuredBikesEl = document.getElementById('featuredBikes');
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const filterBrand = document.getElementById('filterBrand');
-const filterType = document.getElementById('filterType');
-const filterPrice = document.getElementById('filterPrice');
-const sortSelect = document.getElementById('sortSelect');
-const resetFiltersBtn = document.getElementById('resetFilters');
-const bikeCountSpan = document.querySelector('#bike-count span');
-const compareDropdown1 = document.getElementById('compare1');
-const compareDropdown2 = document.getElementById('compare2');
-const compareBtn = document.getElementById('compareBtn');
-const clearCompareBtn = document.getElementById('clearCompare');
-const comparisonResultEl = document.getElementById('comparisonResult');
-
-// ============================================
-// CORE FUNCTION: DISPLAY BIKE CARDS
-// ============================================
-function displayBikes(bikesArray, targetElement, isFeatured = false) {
-    if (bikesArray.length === 0) {
-        targetElement.innerHTML = `<p class="info-note">No motorcycles found matching your criteria. Try adjusting your filters.</p>`;
+function displayBikes(page = 1) {
+    currentPage = page;
+    
+    // Calculate pagination
+    const startIndex = (page - 1) * CONFIG.ITEMS_PER_PAGE;
+    const endIndex = startIndex + CONFIG.ITEMS_PER_PAGE;
+    const bikesToShow = currentBikes.slice(startIndex, endIndex);
+    totalPages = Math.ceil(currentBikes.length / CONFIG.ITEMS_PER_PAGE);
+    
+    if (bikesToShow.length === 0) {
+        elements.bikeListing.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h3>No bikes found</h3>
+                <p>Try adjusting your filters or search terms</p>
+            </div>
+        `;
         return;
     }
+    
+    // Generate bike cards HTML
+    const bikesHTML = bikesToShow.map(bike => createBikeCard(bike)).join('');
+    
+    elements.bikeListing.innerHTML = bikesHTML;
+    generatePagination();
+    
+    // Add event listeners to compare buttons
+    document.querySelectorAll('.btn-compare-select').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const bikeId = e.target.closest('.bike-card').dataset.id;
+            addBikeToComparison(bikeId);
+        });
+    });
+}
 
-    targetElement.innerHTML = bikesArray.map(bike => `
-        <div class="${isFeatured ? 'featured-card' : 'bike-card'}" data-id="${bike.id}">
-            ${bike.imageUrl ?
-                `<img src="${bike.imageUrl}" alt="${bike.name}" class="bike-image" onerror="this.src='https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-4.0.3&auto=format&fit=crop&w=800'">` :
-                `<div class="bike-image" style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;">COMING SOON</div>`
-            }
+function createBikeCard(bike) {
+    const bikeId = `${bike.make}-${bike.model}-${bike.year}`.replace(/\s+/g, '-');
+    
+    return `
+        <div class="bike-card" data-id="${bikeId}">
+            <div class="bike-image">
+                ${bike.imageUrl ? 
+                    `<img src="${bike.imageUrl}" alt="${bike.make} ${bike.model}" 
+                         onerror="this.src='https://images.unsplash.com/photo-1558981403-c5f9899a28bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'">` :
+                    `<i class="fas fa-motorcycle"></i>`
+                }
+            </div>
             <div class="bike-info">
-                <div style="display:flex; justify-content:space-between; align-items:start;">
-                    <h3 class="bike-title">${bike.name}</h3>
-                    ${bike.comingSoon ? `<span class="coming-soon-badge">Coming 2027</span>` : ''}
+                <div class="bike-title">
+                    <span>${bike.make} ${bike.model}</span>
+                    <span class="bike-year">${bike.year || 'N/A'}</span>
                 </div>
-                <p class="bike-brand"><i class="fas fa-industry"></i> ${bike.brand}</p>
-                <p class="bike-price"><strong>Est. Price:</strong> $${bike.price.toLocaleString()}</p>
-
+                
                 <div class="bike-specs">
-                    <span class="spec-item"><i class="fas fa-tachometer-alt"></i> ${bike.engineCC}cc</span>
-                    <span class="spec-item"><i class="fas fa-gas-pump"></i> ${bike.mileage} km/l</span>
-                    <span class="spec-item"><i class="fas fa-biking"></i> ${bike.type}</span>
-                    <span class="spec-item"><i class="fas fa-shield-alt"></i> ${bike.abs}</span>
+                    <div class="spec-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>${bike.formattedCC}</span>
+                    </div>
+                    <div class="spec-item">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>${bike.formattedPrice}</span>
+                    </div>
+                    <div class="spec-item">
+                        <i class="fas fa-gas-pump"></i>
+                        <span>${bike.engine_type || 'Petrol'}</span>
+                    </div>
+                    <div class="spec-item">
+                        <i class="fas fa-cogs"></i>
+                        <span>${bike.transmission || 'Manual'}</span>
+                    </div>
                 </div>
-
-                <p><strong>Pickup:</strong> ${bike.specs.pickup}</p>
-
+                
+                ${bike.horsepower ? `
+                    <div class="performance">
+                        <strong>Performance:</strong>
+                        <span>${bike.horsepower} HP • ${bike.torque || 'N/A'} Nm</span>
+                    </div>
+                ` : ''}
+                
                 <div class="bike-actions">
-                    <button class="btn-details" onclick="showBikeDetails(${bike.id})">
-                        <i class="fas fa-info-circle"></i> Full Details
+                    <button class="btn-details" onclick="showBikeDetails('${bikeId}')">
+                        <i class="fas fa-info-circle"></i> Details
                     </button>
-                    <button class="btn-compare-select" onclick="addBikeToCompare(${bike.id})">
+                    <button class="btn-compare-select">
                         <i class="fas fa-balance-scale"></i> Compare
                     </button>
                 </div>
-                ${bike.buyLink && !bike.comingSoon ?
-                    `<a href="${bike.buyLink}" target="_blank" style="display:inline-block; margin-top:1rem; color:#3498db; text-decoration:none;">
-                        <i class="fas fa-external-link-alt"></i> View on Manufacturer Site
-                    </a>` : ''
-                }
             </div>
         </div>
-    `).join('');
-
-    // Update bike count display
-    if (!isFeatured) {
-        bikeCountSpan.textContent = bikesArray.length;
-    }
+    `;
 }
 
 // ============================================
-// SEARCH & FILTER SYSTEM (Most Important)
+// FILTER SYSTEM
 // ============================================
-function filterAndSortBikes() {
-    let result = [...bikeData];
-
-    // 1. TEXT SEARCH (by name or brand)
-    const searchTerm = searchInput.value.toLowerCase();
-    if (searchTerm) {
-        result = result.filter(bike =>
-            bike.name.toLowerCase().includes(searchTerm) ||
-            bike.brand.toLowerCase().includes(searchTerm)
-        );
-    }
-
-    // 2. FILTER BY BRAND
-    const selectedBrand = filterBrand.value;
-    if (selectedBrand) {
-        result = result.filter(bike => bike.brand === selectedBrand);
-    }
-
-    // 3. FILTER BY BODY TYPE
-    const selectedType = filterType.value;
-    if (selectedType) {
-        result = result.filter(bike => bike.type === selectedType);
-    }
-
-    // 4. FILTER BY PRICE RANGE
-    const selectedPrice = filterPrice.value;
-    if (selectedPrice) {
-        if (selectedPrice === 'low') result = result.filter(bike => bike.price < 5000);
-        if (selectedPrice === 'mid') result = result.filter(bike => bike.price >= 5000 && bike.price <= 15000);
-        if (selectedPrice === 'high') result = result.filter(bike => bike.price > 15000);
-    }
-
-    // 5. SORTING
-    const sortBy = sortSelect.value;
-    if (sortBy === 'priceLow') result.sort((a, b) => a.price - b.price);
-    if (sortBy === 'priceHigh') result.sort((a, b) => b.price - a.price);
-    if (sortBy === 'cc') result.sort((a, b) => b.engineCC - a.engineCC);
-    if (sortBy === 'name') result.sort((a, b) => a.name.localeCompare(b.name));
-
-    currentBikes = result;
-    displayBikes(currentBikes, bikeListingEl);
-}
-
-// ============================================
-// COMPARISON FEATURE FUNCTIONS
-// ============================================
-let bikesToCompare = [];
-
-function addBikeToCompare(bikeId) {
-    const bike = bikeData.find(b => b.id === bikeId);
-    if (!bike) return;
-
-    if (bikesToCompare.length >= 4) {
-        alert('Maximum 4 bikes can be compared at once. Please clear the selection first.');
-        return;
-    }
-
-    if (!bikesToCompare.some(b => b.id === bikeId)) {
-        bikesToCompare.push(bike);
-        updateCompareDropdowns();
-        alert(`Added ${bike.name} to comparison. Select another bike and click "Compare Now".`);
-    } else {
-        alert('This bike is already in the comparison list.');
-    }
-}
-
-function updateCompareDropdowns() {
-    // Clear and populate both dropdowns with all bikes
-    [compareDropdown1, compareDropdown2].forEach(dropdown => {
-        dropdown.innerHTML = '<option value="">-- Select a Bike --</option>';
-        bikeData.forEach(bike => {
-            const option = document.createElement('option');
-            option.value = bike.id;
-            option.textContent = `${bike.name} (${bike.brand})`;
-            dropdown.appendChild(option);
+function initializeFilters() {
+    // Brand filter is populated separately after data loads
+    
+    // Add event listeners to all filter elements
+    elements.applyFilters.addEventListener('click', applyFilters);
+    elements.resetFilters.addEventListener('click', resetFilters);
+    elements.sortSelect.addEventListener('change', applySorting);
+    
+    // Add real-time filtering for text inputs
+    document.querySelectorAll('.filter-select').forEach(select => {
+        select.addEventListener('change', () => {
+            // Apply filters after a short delay for better UX
+            clearTimeout(window.filterTimeout);
+            window.filterTimeout = setTimeout(applyFilters, 300);
         });
     });
-
-    // Pre-select bikes already in comparison array
-    if (bikesToCompare.length > 0) compareDropdown1.value = bikesToCompare[0].id;
-    if (bikesToCompare.length > 1) compareDropdown2.value = bikesToCompare[1].id;
 }
 
-function performComparison() {
-    const bike1Id = parseInt(compareDropdown1.value);
-    const bike2Id = parseInt(compareDropdown2.value);
+function populateBrandFilter() {
+    const brands = [...new Set(allBikes.map(bike => bike.make).filter(Boolean))];
+    brands.sort();
+    
+    // Clear existing options except the first one
+    while (elements.filterBrand.options.length > 1) {
+        elements.filterBrand.remove(1);
+    }
+    
+    // Add brand options
+    brands.forEach(brand => {
+        const option = document.createElement('option');
+        option.value = brand.toLowerCase();
+        option.textContent = brand;
+        elements.filterBrand.appendChild(option);
+    });
+}
 
-    if (!bike1Id || !bike2Id) {
-        comparisonResultEl.innerHTML = `<p class="info-note">Please select two different bikes from the dropdowns to compare.</p>`;
+function applyFilters() {
+    // Get current filter values
+    filters = {
+        brand: elements.filterBrand.value,
+        cc: elements.filterCC.value,
+        price: elements.filterPrice.value,
+        fuel: elements.filterFuel.value,
+        abs: elements.filterABS.value,
+        type: elements.filterType.value
+    };
+    
+    // Apply filters
+    let filteredBikes = [...allBikes];
+    
+    // Brand filter
+    if (filters.brand) {
+        filteredBikes = filteredBikes.filter(bike => 
+            bike.make.toLowerCase() === filters.brand
+        );
+    }
+    
+    // Engine CC filter
+    if (filters.cc) {
+        filteredBikes = filteredBikes.filter(bike => {
+            const cc = bike.displacement || 0;
+            switch(filters.cc) {
+                case '0-150': return cc <= 150;
+                case '151-300': return cc > 150 && cc <= 300;
+                case '301-500': return cc > 300 && cc <= 500;
+                case '501-800': return cc > 500 && cc <= 800;
+                case '801-1200': return cc > 800 && cc <= 1200;
+                case '1201+': return cc > 1200;
+                default: return true;
+            }
+        });
+    }
+    
+    // Price filter
+    if (filters.price) {
+        filteredBikes = filteredBikes.filter(bike => {
+            const price = bike.price || 0;
+            switch(filters.price) {
+                case '0-5000': return price <= 5000;
+                case '5001-15000': return price > 5000 && price <= 15000;
+                case '15001-30000': return price > 15000 && price <= 30000;
+                case '30001+': return price > 30000;
+                default: return true;
+            }
+        });
+    }
+    
+    // Fuel type filter
+    if (filters.fuel) {
+        filteredBikes = filteredBikes.filter(bike => 
+            (bike.engine_type || '').toLowerCase().includes(filters.fuel)
+        );
+    }
+    
+    // Body type filter
+    if (filters.type) {
+        filteredBikes = filteredBikes.filter(bike => {
+            // This would need mapping from API data to body types
+            // For now, we'll use a simple check
+            const model = (bike.model || '').toLowerCase();
+            switch(filters.type) {
+                case 'sport': return model.includes('r') || model.includes('rr') || model.includes('ninja');
+                case 'cruiser': return model.includes('cruiser') || model.includes('harley');
+                case 'adventure': return model.includes('adventure') || model.includes('tiger');
+                default: return true;
+            }
+        });
+    }
+    
+    // Update current bikes and display
+    currentBikes = filteredBikes;
+    currentPage = 1;
+    displayBikes(currentPage);
+    updateBikeCount();
+}
+
+function resetFilters() {
+    // Reset all filter selects
+    elements.filterBrand.value = '';
+    elements.filterCC.value = '';
+    elements.filterPrice.value = '';
+    elements.filterFuel.value = '';
+    elements.filterABS.value = '';
+    elements.filterType.value = '';
+    elements.sortSelect.value = 'make';
+    
+    // Reset filter state
+    filters = {
+        brand: '',
+        cc: '',
+        price: '',
+        fuel: '',
+        abs: '',
+        type: ''
+    };
+    
+    // Reset and display all bikes
+    currentBikes = [...allBikes];
+    currentPage = 1;
+    displayBikes(currentPage);
+    updateBikeCount();
+}
+
+function applySorting() {
+    const sortBy = elements.sortSelect.value;
+    
+    let sortedBikes = [...currentBikes];
+    
+    switch(sortBy) {
+        case 'year_desc':
+            sortedBikes.sort((a, b) => (b.year || 0) - (a.year || 0));
+            break;
+        case 'year_asc':
+            sortedBikes.sort((a, b) => (a.year || 0) - (b.year || 0));
+            break;
+        case 'price_asc':
+            sortedBikes.sort((a, b) => (a.price || 0) - (b.price || 0));
+            break;
+        case 'price_desc':
+            sortedBikes.sort((a, b) => (b.price || 0) - (a.price || 0));
+            break;
+        case 'displacement_desc':
+            sortedBikes.sort((a, b) => (b.displacement || 0) - (a.displacement || 0));
+            break;
+        default: // 'make'
+            sortedBikes.sort((a, b) => (a.make || '').localeCompare(b.make || ''));
+    }
+    
+    currentBikes = sortedBikes;
+    displayBikes(currentPage);
+}
+
+// ============================================
+// PAGINATION
+// ============================================
+function generatePagination() {
+    if (totalPages <= 1) {
+        elements.pagination.innerHTML = '';
         return;
     }
+    
+    let paginationHTML = '';
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // Previous button
+    paginationHTML += `
+        <button class="page-btn ${currentPage === 1 ? 'disabled' : ''}" 
+                onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    `;
+    
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `
+            <button class="page-btn ${i === currentPage ? 'active' : ''}" 
+                    onclick="changePage(${i})">
+                ${i}
+            </button>
+        `;
+    }
+    
+    // Next button
+    paginationHTML += `
+        <button class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" 
+                onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    `;
+    
+    elements.pagination.innerHTML = paginationHTML;
+}
 
-    const bike1 = bikeData.find(b => b.id === bike1Id);
-    const bike2 = bikeData.find(b => b.id === bike2Id);
+function changePage(page) {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    
+    currentPage = page;
+    displayBikes(page);
+    
+    // Scroll to top of bike listing
+    elements.bikeListing.scrollIntoView({ behavior: 'smooth' });
+}
 
-    if (!bike1 || !bike2) return;
+// ============================================
+// FEATURED SECTIONS
+// ============================================
+function loadFeaturedSections() {
+    // Load Trending Bikes
+    loadTrendingBikes();
+    
+    // Load Top 10 Bikes
+    loadTop10Bikes();
+}
 
-    // Create a detailed comparison table
-    comparisonResultEl.innerHTML = `
-        <h3>${bike1.name} vs ${bike2.name}</h3>
-        <table class="comparison-table">
+function loadTrendingBikes() {
+    // For now, use a sample of bikes as trending
+    const trendingSample = allBikes
+        .filter(bike => bike.year >= 2020)
+        .slice(0, 6);
+    
+    const trendingHTML = trendingSample.map(bike => createFeaturedCard(bike, 'trending')).join('');
+    elements.trendingBikes.innerHTML = trendingHTML;
+}
+
+function loadTop10Bikes() {
+    // Filter for bikes that match our top 10 list
+    const top10Bikes = allBikes.filter(bike => 
+        CONFIG.TOP_10_BIKES.some(name => 
+            `${bike.make} ${bike.model}`.includes(name)
+        )
+    ).slice(0, 10);
+    
+    // If not enough matches, add some popular bikes
+    if (top10Bikes.length < 10) {
+        const additionalBikes = allBikes
+            .filter(bike => !top10Bikes.includes(bike))
+            .slice(0, 10 - top10Bikes.length);
+        top10Bikes.push(...additionalBikes);
+    }
+    
+    const top10HTML = top10Bikes.map(bike => createFeaturedCard(bike, 'top10')).join('');
+    elements.top10Bikes.innerHTML = top10HTML;
+}
+
+function createFeaturedCard(bike, type) {
+    const badgeClass = type === 'trending' ? 'badge-trending' : 'badge-top10';
+    const badgeText = type === 'trending' ? 'Trending' : 'Top 10';
+    
+    return `
+        <div class="featured-card">
+            <div class="featured-image">
+                <img src="${bike.imageUrl}" alt="${bike.make} ${bike.model}"
+                     onerror="this.src='https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'">
+                <span class="${badgeClass}">${badgeText}</span>
+            </div>
+            <div class="featured-info">
+                <h4>${bike.make} ${bike.model}</h4>
+                <p>${bike.formattedCC} • ${bike.formattedPrice}</p>
+                <button class="btn-compare-select" onclick="addBikeToComparison('${bike.make}-${bike.model}-${bike.year}')">
+                    Compare
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// ============================================
+// COMPARISON TOOL
+// ============================================
+function initializeComparisonTool() {
+    elements.runComparison.addEventListener('click', runComparison);
+    
+    // Clear comparison button
+    document.getElementById('clearCompare')?.addEventListener('click', () => {
+        selectedBikes = [];
+        elements.comparisonResults.innerHTML = `
+            <div class="info-note">
+                <i class="fas fa-info-circle"></i>
+                <p>Select 2-3 bikes to compare from the dropdowns above</p>
+            </div>
+        `;
+        updateComparisonDropdowns();
+    });
+}
+
+function populateComparisonDropdowns() {
+    // Clear existing options
+    [elements.compare1, elements.compare2, elements.compare3].forEach(select => {
+        select.innerHTML = '<option value="">Select a Bike</option>';
+    });
+    
+    // Add bike options
+    allBikes.forEach(bike => {
+        const optionText = `${bike.make} ${bike.model} (${bike.year})`;
+        const optionValue = `${bike.make}-${bike.model}-${bike.year}`;
+        
+        [elements.compare1, elements.compare2, elements.compare3].forEach(select => {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = optionText;
+            select.appendChild(option);
+        });
+    });
+}
+
+function addBikeToComparison(bikeId) {
+    if (selectedBikes.length >= 3) {
+        alert('You can compare up to 3 bikes at a time.');
+        return;
+    }
+    
+    if (!selectedBikes.includes(bikeId)) {
+        selectedBikes.push(bikeId);
+        updateComparisonDropdowns();
+        
+        // Show notification
+        showNotification(`Added bike to comparison (${selectedBikes.length}/3 selected)`);
+    }
+}
+
+function updateComparisonDropdowns() {
+    [elements.compare1, elements.compare2, elements.compare3].forEach((select, index) => {
+        select.value = selectedBikes[index] || '';
+    });
+}
+
+function runComparison() {
+    const bikeIds = [
+        elements.compare1.value,
+        elements.compare2.value,
+        elements.compare3.value
+    ].filter(Boolean);
+    
+    if (bikeIds.length < 2) {
+        alert('Please select at least 2 bikes to compare.');
+        return;
+    }
+    
+    const bikesToCompare = bikeIds.map(id => 
+        allBikes.find(bike => `${bike.make}-${bike.model}-${bike.year}` === id)
+    ).filter(Boolean);
+    
+    if (bikesToCompare.length < 2) {
+        alert('Could not find selected bikes. Please try again.');
+        return;
+    }
+    
+    displayComparisonResults(bikesToCompare);
+}
+
+function displayComparisonResults(bikes) {
+    const specsToCompare = [
+        { key: 'make', label: 'Brand' },
+        { key: 'model', label: 'Model' },
+        { key: 'year', label: 'Year' },
+        { key: 'price', label: 'Price', format: formatPrice },
+        { key: 'displacement', label: 'Engine CC', format: formatCC },
+        { key: 'engine_type', label: 'Engine Type' },
+        { key: 'horsepower', label: 'Horsepower', suffix: ' HP' },
+        { key: 'torque', label: 'Torque', suffix: ' Nm' },
+        { key: 'transmission', label: 'Transmission' },
+        { key: 'fuel_capacity', label: 'Fuel Capacity', suffix: ' L' },
+        { key: 'seat_height', label: 'Seat Height', suffix: ' mm' },
+        { key: 'dry_weight', label: 'Weight', suffix: ' kg' }
+    ];
+    
+    let tableHTML = `
+        <div class="comparison-header">
+            <h3>Bike Comparison</h3>
+            <button onclick="exportComparison()" class="btn-export">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+        <table>
             <thead>
                 <tr>
                     <th>Specification</th>
-                    <th>${bike1.name}</th>
-                    <th>${bike2.name}</th>
+                    ${bikes.map(bike => `<th>${bike.make} ${bike.model}</th>`).join('')}
                 </tr>
             </thead>
             <tbody>
-                <tr><td>Brand</td><td>${bike1.brand}</td><td>${bike2.brand}</td></tr>
-                <tr><td>Price</td><td>$${bike1.price.toLocaleString()}</td><td>$${bike2.price.toLocaleString()}</td></tr>
-                <tr class="highlight-spec"><td>Engine CC</td><td>${bike1.engineCC} cc</td><td>${bike2.engineCC} cc</td></tr>
-                <tr><td>Mileage</td><td>${bike1.mileage} km/l</td><td>${bike2.mileage} km/l</td></tr>
-                <tr><td>Body Type</td><td>${bike1.type}</td><td>${bike2.type}</td></tr>
-                <tr><td>ABS</td><td>${bike1.abs}</td><td>${bike2.abs}</td></tr>
-                <tr class="highlight-spec"><td>Top Speed</td><td>${bike1.specs.topSpeed} km/h</td><td>${bike2.specs.topSpeed} km/h</td></tr>
-                <tr><td>Brakes</td><td>${bike1.specs.brakes}</td><td>${bike2.specs.brakes}</td></tr>
-                <tr><td>Fuel Tank</td><td>${bike1.specs.fuelCapacity} L</td><td>${bike2.specs.fuelCapacity} L</td></tr>
-                <tr><td>Pickup (Acceleration)</td><td>${bike1.specs.pickup}</td><td>${bike2.specs.pickup}</td></tr>
-                <tr><td>Maintenance Cost</td><td>${bike1.specs.maintenance}</td><td>${bike2.specs.maintenance}</td></tr>
+    `;
+    
+    specsToCompare.forEach(spec => {
+        tableHTML += '<tr>';
+        tableHTML += `<td>${spec.label}</td>`;
+        
+        bikes.forEach(bike => {
+            let value = bike[spec.key] || 'N/A';
+            if (spec.format) value = spec.format(value);
+            if (spec.suffix && value !== 'N/A') value += spec.suffix;
+            
+            tableHTML += `<td>${value}</td>`;
+        });
+        
+        tableHTML += '</tr>';
+    });
+    
+    tableHTML += `
             </tbody>
         </table>
-        <p style="margin-top:1rem;"><strong>Verdict:</strong> ${getComparisonVerdict(bike1, bike2)}</p>
+        
+        <div class="comparison-verdict">
+            <h4>Our Verdict:</h4>
+            <p>${generateVerdict(bikes)}</p>
+        </div>
     `;
-
-    // Scroll to comparison result
-    comparisonResultEl.scrollIntoView({ behavior: 'smooth' });
+    
+    elements.comparisonResults.innerHTML = tableHTML;
 }
 
-function getComparisonVerdict(bike1, bike2) {
-    if (bike1.price > bike2.price + 5000) return `${bike2.name} offers better value for money.`;
-    if (bike1.mileage > bike2.mileage + 20) return `${bike1.name} is significantly more fuel efficient.`;
-    if (bike1.engineCC > bike2.engineCC + 500) return `${bike1.name} has substantially more power.`;
-    return "Both bikes have their strengths. Consider your primary use (city commute, touring, sport riding).";
+function generateVerdict(bikes) {
+    if (bikes.length < 2) return '';
+    
+    const bike1 = bikes[0];
+    const bike2 = bikes[1];
+    
+    const priceDiff = Math.abs((bike1.price || 0) - (bike2.price || 0));
+    const powerDiff = Math.abs((bike1.horsepower || 0) - (bike2.horsepower || 0));
+    
+    if (priceDiff > 10000) {
+        return `The ${bike1.price < bike2.price ? bike1.make : bike2.make} offers better value for money.`;
+    } else if (powerDiff > 50) {
+        return `The ${bike1.horsepower > bike2.horsepower ? bike1.make : bike2.make} has significantly more power.`;
+    } else {
+        return 'Both bikes are closely matched. Choose based on brand preference and specific features.';
+    }
 }
 
 // ============================================
-// DETAILED BIKE SPECS MODAL (Simulated)
+// EMI CALCULATOR
+// ============================================
+function initializeEMICalculator() {
+    // Update interest rate display
+    elements.interestRate.addEventListener('input', function() {
+        elements.interestValue.textContent = `${this.value}%`;
+    });
+    
+    // Update tenure display
+    elements.loanTenure.addEventListener('input', function() {
+        elements.tenureValue.textContent = `${this.value} Months`;
+    });
+    
+    // Calculate EMI on button click
+    elements.calculateEMI.addEventListener('click', calculateEMI);
+    
+    // Calculate EMI on page load
+    calculateEMI();
+}
+
+function calculateEMI() {
+    const principal = parseFloat(elements.bikePrice.value) - parseFloat(elements.downPayment.value);
+    const interestRate = parseFloat(elements.interestRate.value) / 100 / 12;
+    const tenure = parseFloat(elements.loanTenure.value);
+    
+    if (principal <= 0 || tenure <= 0) {
+        alert('Please enter valid values');
+        return;
+    }
+    
+    // EMI Formula: [P x R x (1+R)^N]/[(1+R)^N-1]
+    const emi = principal * interestRate * Math.pow(1 + interestRate, tenure) / 
+                (Math.pow(1 + interestRate, tenure) - 1);
+    
+    const totalPayment = emi * tenure;
+    const totalInterest = totalPayment - principal;
+    
+    // Update display
+    elements.monthlyEMI.textContent = `$${emi.toFixed(2)}`;
+    elements.totalInterest.textContent = `$${totalInterest.toFixed(2)}`;
+    elements.totalPayment.textContent = `$${totalPayment.toFixed(2)}`;
+    
+    // Update chart if available
+    updateEMIChart(principal, totalInterest);
+}
+
+function updateEMIChart(principal, interest) {
+    const ctx = document.getElementById('emiChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Principal Amount', 'Total Interest'],
+            datasets: [{
+                data: [principal, interest],
+                backgroundColor: ['#36a2eb', '#ff6384'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// ============================================
+// DONATION SYSTEM
+// ============================================
+function initializeDonationButtons() {
+    document.querySelectorAll('.donation-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const amount = this.dataset.amount;
+            if (amount === 'custom') {
+                const customAmount = prompt('Enter custom donation amount ($):');
+                if (customAmount && !isNaN(customAmount)) {
+                    processDonation(parseFloat(customAmount));
+                }
+            } else {
+                processDonation(parseFloat(amount));
+            }
+        });
+    });
+}
+
+function processDonation(amount) {
+    // In a real implementation, this would redirect to PayPal or payment gateway
+    const paypalUrl = `https://www.paypal.com/donate?hosted_button_id=YOUR_BUTTON_ID&amount=${amount}`;
+    
+    showNotification(`Redirecting to secure payment for $${amount} donation...`);
+    
+    // Open payment in new tab
+    setTimeout(() => {
+        window.open(paypalUrl, '_blank');
+    }, 1000);
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function formatPrice(price) {
+    if (!price || isNaN(price)) return '$N/A';
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0
+    }).format(price);
+}
+
+function formatCC(cc) {
+    if (!cc || isNaN(cc)) return 'N/A';
+    return `${cc.toLocaleString()}cc`;
+}
+
+function updateBikeCount() {
+    elements.bikeCount.textContent = `Available Bikes (${currentBikes.length})`;
+}
+
+function showLoadingState() {
+    elements.bikeListing.innerHTML = `
+        <div class="loading-spinner">
+            <i class="fas fa-motorcycle fa-spin"></i>
+            <p>Loading worldwide motorcycle database...</p>
+        </div>
+    `;
+}
+
+function showErrorState(message) {
+    elements.bikeListing.innerHTML = `
+        <div class="error-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Oops! Something went wrong</h3>
+            <p>${message}</p>
+            <button onclick="location.reload()" class="btn-primary">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+        </div>
+    `;
+}
+
+function showNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()">&times;</button>
+    `;
+    
+    // Style the notification
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--success);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// ============================================
+// BIKE DETAILS MODAL
 // ============================================
 function showBikeDetails(bikeId) {
-    const bike = bikeData.find(b => b.id === bikeId);
-    if (!bike) return;
-
-    // In a full implementation, this would open a modal or navigate to a details page.
-    // For this example, we show an alert with key specs.
-    const detailsMessage = `
-        ${bike.name} - Full Specifications:
-        • Brand: ${bike.brand}
-        • Price: $${bike.price.toLocaleString()}
-        • Engine: ${bike.engineCC}cc
-        • Mileage: ${bike.mileage} km/l
-        • Top Speed: ${bike.specs.topSpeed} km/h
-        • ABS: ${bike.abs}
-        • Fuel Tank: ${bike.specs.fuelCapacity} liters
-        • Brakes: ${bike.specs.brakes}
-        • Suspension: ${bike.specs.suspension}
-        • Tyres: ${bike.specs.tyres}
-        • Headlight: ${bike.specs.headlight || 'LED/Halogen'}
-        • Maintenance Cost: ${bike.specs.maintenance}
-        • Pickup: ${bike.specs.pickup}
-        • Comfort: ${bike.specs.comfort}
+    const bike = allBikes.find(b => 
+        `${b.make}-${b.model}-${b.year}`.replace(/\s+/g, '-') === bikeId
+    );
+    
+    if (!bike) {
+        alert('Bike details not available.');
+        return;
+    }
+    
+    // Create modal HTML
+    const modalHTML = `
+        <div class="modal-overlay" onclick="closeModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>${bike.make} ${bike.model} (${bike.year})</h2>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-image">
+                        <img src="${bike.imageUrl}" alt="${bike.make} ${bike.model}">
+                    </div>
+                    <div class="modal-specs">
+                        <h3>Specifications</h3>
+                        <div class="spec-grid">
+                            <div class="spec-item">
+                                <strong>Price:</strong> ${formatPrice(bike.price)}
+                            </div>
+                            <div class="spec-item">
+                                <strong>Engine:</strong> ${formatCC(bike.displacement)}
+                            </div>
+                            <div class="spec-item">
+                                <strong>Power:</strong> ${bike.horsepower || 'N/A'} HP
+                            </div>
+                            <div class="spec-item">
+                                <strong>Torque:</strong> ${bike.torque || 'N/A'} Nm
+                            </div>
+                            <div class="spec-item">
+                                <strong>Fuel Type:</strong> ${bike.engine_type || 'Petrol'}
+                            </div>
+                            <div class="spec-item">
+                                <strong>Transmission:</strong> ${bike.transmission || 'Manual'}
+                            </div>
+                            <div class="spec-item">
+                                <strong>Fuel Capacity:</strong> ${bike.fuel_capacity || 'N/A'} L
+                            </div>
+                            <div class="spec-item">
+                                <strong>Seat Height:</strong> ${bike.seat_height || 'N/A'} mm
+                            </div>
+                            <div class="spec-item">
+                                <strong>Weight:</strong> ${bike.dry_weight || 'N/A'} kg
+                            </div>
+                        </div>
+                        
+                        ${bike.buyLink ? `
+                            <div class="modal-actions">
+                                <a href="${bike.buyLink}" target="_blank" class="btn-primary">
+                                    <i class="fas fa-shopping-cart"></i> Buy Now
+                                </a>
+                                <button class="btn-secondary" onclick="addBikeToComparison('${bikeId}')">
+                                    <i class="fas fa-balance-scale"></i> Add to Comparison
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Add modal styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+        }
+        .modal-body {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 768px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+        }
+        .modal-image img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
 
-    alert(detailsMessage);
-    console.log("Full bike object for developer reference:", bike);
+function closeModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) modal.remove();
+    
+    // Remove modal styles
+    const style = document.querySelector('style[data-modal]');
+    if (style) style.remove();
 }
 
 // ============================================
-// INITIALIZE PAGE ON LOAD
+// MOBILE MENU
 // ============================================
-function initializePage() {
-    // 1. Populate brand filter with unique brands from data
-    const allBrands = [...new Set(bikeData.map(bike => bike.brand))];
-    allBrands.forEach(brand => {
-        const option = document.createElement('option');
-        option.value = brand;
-        option.textContent = brand;
-        filterBrand.appendChild(option);
-    });
-
-    // 2. Display all bikes initially
-    displayBikes(currentBikes, bikeListingEl);
-
-    // 3. Populate "Top 10 Featured" of the month (logic: bikes marked featured + some random)
-    const featuredBikes = bikeData
-        .filter(bike => bike.featured)
-        .sort(() => 0.5 - Math.random()) // Simple shuffle
-        .slice(0, 10);
-    displayBikes(featuredBikes, featuredBikesEl, true);
-
-    // 4. Populate comparison dropdowns
-    updateCompareDropdowns();
-
-    // 5. Set up event listeners
-    searchBtn.addEventListener('click', filterAndSortBikes);
-    searchInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') filterAndSortBikes();
-    });
-
-    [filterBrand, filterType, filterPrice, sortSelect].forEach(element => {
-        element.addEventListener('change', filterAndSortBikes);
-    });
-
-    resetFiltersBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        filterBrand.value = '';
-        filterType.value = '';
-        filterPrice.value = '';
-        sortSelect.value = 'name';
-        filterAndSortBikes();
-    });
-
-    compareBtn.addEventListener('click', performComparison);
-    clearCompareBtn.addEventListener('click', () => {
-        bikesToCompare = [];
-        comparisonResultEl.innerHTML = `<p class="info-note">Comparison cleared. Select two new bikes from the dropdowns above.</p>`;
-        compareDropdown1.value = '';
-        compareDropdown2.value = '';
-    });
-
-    // Initial filter call
-    filterAndSortBikes();
+function initializeMobileMenu() {
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (mobileMenu && navLinks) {
+        mobileMenu.addEventListener('click', () => {
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+            navLinks.style.flexDirection = 'column';
+            navLinks.style.position = 'absolute';
+            navLinks.style.top = '100%';
+            navLinks.style.left = '0';
+            navLinks.style.right = '0';
+            navLinks.style.background = 'var(--dark)';
+            navLinks.style.padding = '1rem';
+            navLinks.style.zIndex = '1000';
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !navLinks.contains(e.target)) {
+                navLinks.style.display = 'none';
+            }
+        });
+    }
 }
 
-// Start the application when page loads
-document.addEventListener('DOMContentLoaded', initializePage);
+// ============================================
+// EXPORT FUNCTIONALITY
+// ============================================
+function exportComparison() {
+    const table = elements.comparisonResults.querySelector('table');
+    if (!table) return;
+    
+    let csv = [];
+    
+    // Get all rows
+    const rows = table.querySelectorAll('tr');
+    
+    rows.forEach(row => {
+        const rowData = [];
+        const cols = row.querySelectorAll('th, td');
+        
+        cols.forEach(col => {
+            rowData.push(`"${col.textContent.trim()}"`);
+        });
+        
+        csv.push(rowData.join(','));
+    });
+    
+    // Create download link
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    
+    a.href = url;
+    a.download = 'bike-comparison.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('Comparison exported as CSV');
+}
+
+// ============================================
+// GOOGLE CUSTOM SEARCH INTEGRATION
+// ============================================
+function initGoogleSearch() {
+    // Google CSE should auto-initialize with the script in head
+    // Add custom styling if needed
+    const style = document.createElement('style');
+    style.textContent = `
+        .gsc-control-cse {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+        .gsc-search-box {
+            margin-bottom: 0 !important;
+        }
+        .gsc-input-box {
+            border: 2px solid var(--accent) !important;
+            border-radius: 50px !important;
+            height: 50px !important;
+        }
+        .gsc-search-button {
+            background: var(--primary) !important;
+            border-radius: 50px !important;
+            height: 50px !important;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Initialize Google Search when CSE is loaded
+if (typeof google !== 'undefined') {
+    google.search.cse.element.getElement('searchresults-only0').renderNoResults = function(name, query) {
+        // Custom no results handler
+        return `
+            <div class="no-results">
+                <h3>No results found for "${query}"</h3>
+                <p>Try searching on our bike database instead</p>
+            </div>
+        `;
+    };
+}
+
+// ============================================
+// MAKE FUNCTIONS GLOBALLY AVAILABLE
+// ============================================
+window.changePage = changePage;
+window.showBikeDetails = showBikeDetails;
+window.addBikeToComparison = addBikeToComparison;
+window.closeModal = closeModal;
+window.exportComparison = exportComparison;
