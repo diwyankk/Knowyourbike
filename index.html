@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Bike Specs | Compare & Explore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header>
+        <nav>
+            <div class="logo"><i class="fas fa-motorcycle"></i> BikeSpecsGlobal</div>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#featured">Top 10</a></li>
+                <li><a href="#brands">Brands</a></li>
+                <li><a href="#compare-tool">Compare</a></li>
+                <li><a href="#tools">EMI Tools</a></li>
+            </ul>
+        </nav>
+        <!-- Hero Section with Search -->
+        <div class="hero">
+            <h1>Explore Every Motorcycle in the World</h1>
+            <p>Search by name, filter by specs, compare in detail, and find where to buy.</p>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search bike name (e.g., Yamaha R1, Harley Street Glide)...">
+                <button id="searchBtn"><i class="fas fa-search"></i> Search</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Filter Controls Section -->
+        <section class="filters-card">
+            <h2><i class="fas fa-filter"></i> Refine Your Search</h2>
+            <div class="filter-controls">
+                <select id="filterBrand">
+                    <option value="">All Brands</option>
+                </select>
+                <select id="filterType">
+                    <option value="">All Body Types</option>
+                    <option value="Sport">Sport</option>
+                    <option value="Cruiser">Cruiser</option>
+                    <option value="Commuter">Commuter</option>
+                    <option value="Adventure">Adventure</option>
+                </select>
+                <select id="filterPrice">
+                    <option value="">Any Price</option>
+                    <option value="low">Under $5,000</option>
+                    <option value="mid">$5,000 - $15,000</option>
+                    <option value="high">Over $15,000</option>
+                </select>
+                <button id="resetFilters"><i class="fas fa-redo"></i> Reset All</button>
+            </div>
+        </section>
+
+        <!-- Dynamic Bike Listing Area -->
+        <section>
+            <div class="section-header">
+                <h2 id="bike-count">Available Bikes (<span>...</span>)</h2>
+                <select id="sortSelect">
+                    <option value="name">Sort by: Name</option>
+                    <option value="priceLow">Price: Low to High</option>
+                    <option value="priceHigh">Price: High to Low</option>
+                    <option value="cc">Engine: High CC First</option>
+                </select>
+            </div>
+            <div class="bike-listing" id="bikeListing">
+                <!-- BIKE CARDS WILL BE DYNAMICALLY INSERTED HERE BY JAVASCRIPT -->
+                <p class="loading-text">Loading motorcycles from around the world...</p>
+            </div>
+        </section>
+
+        <!-- Featured "Top 10 of the Month" Section -->
+        <section class="highlight-section" id="featured">
+            <h2><i class="fas fa-crown"></i> Top 10 Bikes of This Month</h2>
+            <p class="section-sub">Curated based on popularity, performance, and value. Updated monthly.</p>
+            <div class="featured-bikes" id="featuredBikes">
+                <!-- TOP 10 BIKE CARDS WILL BE DYNAMICALLY INSERTED HERE -->
+            </div>
+        </section>
+
+        <!-- Bike Comparison Tool -->
+        <section class="compare-section" id="compare-tool">
+            <h2><i class="fas fa-balance-scale"></i> Head-to-Head Comparison</h2>
+            <p>Select up to 4 bikes to compare detailed specifications side-by-side.</p>
+            <div class="compare-interface">
+                <div class="compare-selectors">
+                    <select class="compare-dropdown" id="compare1">
+                        <option value="">-- Select Bike 1 --</option>
+                    </select>
+                    <select class="compare-dropdown" id="compare2">
+                        <option value="">-- Select Bike 2 --</option>
+                    </select>
+                    <button id="compareBtn" class="compare-action-btn"><i class="fas fa-chart-bar"></i> Compare Now</button>
+                    <button id="clearCompare" class="compare-action-btn secondary"><i class="fas fa-times"></i> Clear</button>
+                </div>
+                <div class="comparison-result" id="comparisonResult">
+                    <!-- COMPARISON TABLE WILL APPEAR HERE -->
+                    <p class="info-note">Select two bikes from the dropdowns above and click "Compare Now".</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 BikeSpecsGlobal. All specifications are for informational purposes. Images are linked from manufacturer sites.</p>
+        <p class="footer-links">
+            <a href="#">About</a> | <a href="#">Contact</a> | <a href="#">Privacy</a> | <a href="#">Terms</a> | <a href="#"><i class="fas fa-wrench"></i> Admin Panel (Coming Soon)</a>
+        </p>
+    </footer>
+
+    <!-- Link to the external JavaScript file -->
+    <script src="script.js"></script>
+</body>
+  </html>
