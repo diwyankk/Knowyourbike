@@ -1,0 +1,73 @@
+/* ===== BASE RESET & TYPOGRAPHY ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: #f5f7fa; color: #333; line-height: 1.6; }
+
+/* ===== HEADER & NAVIGATION ===== */
+header { background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%); color: white; padding-bottom: 2rem; }
+nav { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 5%; flex-wrap: wrap; }
+.logo { font-size: 1.8rem; font-weight: 700; color: #00d4ff; }
+.nav-links { display: flex; list-style: none; gap: 1.8rem; }
+.nav-links a { color: #ecf0f1; text-decoration: none; font-weight: 500; padding: 0.5rem 0; transition: color 0.3s; border-bottom: 2px solid transparent; }
+.nav-links a:hover, .nav-links a.active { color: #00d4ff; border-bottom-color: #00d4ff; }
+
+/* ===== HERO & SEARCH ===== */
+.hero { text-align: center; padding: 3rem 5%; max-width: 900px; margin: 0 auto; }
+.hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+.hero p { font-size: 1.1rem; color: #bdc3c7; margin-bottom: 2rem; }
+.search-box { display: flex; gap: 10px; max-width: 700px; margin: 0 auto; }
+#searchInput { flex: 1; padding: 1rem 1.2rem; border: none; border-radius: 50px; font-size: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+#searchBtn { background: linear-gradient(to right, #00d4ff, #0099cc); color: white; border: none; padding: 1rem 2rem; border-radius: 50px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+#searchBtn:hover { transform: scale(1.05); }
+
+/* ===== MAIN LAYOUT & CONTAINERS ===== */
+.container { padding: 2rem 5%; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin: 2.5rem 0 1.5rem 0; flex-wrap: wrap; gap: 1rem; }
+.section-header h2 { color: #2c3e50; font-size: 1.8rem; }
+
+/* ===== FILTER CONTROLS ===== */
+.filters-card { background: white; border-radius: 12px; padding: 1.8rem; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.filter-controls { display: flex; gap: 15px; margin-top: 1rem; flex-wrap: wrap; }
+.filter-controls select, #resetFilters { padding: 0.8rem 1.2rem; border-radius: 8px; font-size: 0.95rem; }
+.filter-controls select { flex: 1; min-width: 180px; border: 1px solid #ddd; background-color: #f8f9fa; }
+#resetFilters { background-color: #e74c3c; color: white; border: none; cursor: pointer; transition: background 0.3s; }
+#resetFilters:hover { background-color: #c0392b; }
+
+/* ===== BIKE LISTING CARDS ===== */
+.bike-listing, .featured-bikes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 1.5rem; }
+.bike-card, .featured-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 18px rgba(0,0,0,0.07); transition: all 0.3s ease; border-top: 4px solid #3498db; }
+.bike-card:hover, .featured-card:hover { transform: translateY(-8px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }
+.featured-card { border-top-color: #f1c40f; }
+.bike-image { width: 100%; height: 200px; object-fit: cover; background-color: #eee; display: block; }
+.bike-info { padding: 1.5rem; }
+.bike-title { font-size: 1.4rem; color: #2c3e50; margin-bottom: 0.5rem; }
+.bike-specs { color: #7f8c8d; font-size: 0.9rem; margin: 0.8rem 0; display: flex; flex-wrap: wrap; gap: 15px; }
+.spec-item { display: flex; align-items: center; gap: 5px; }
+.bike-actions { display: flex; justify-content: space-between; margin-top: 1.2rem; }
+.btn-details, .btn-compare-select { padding: 0.6rem 1.5rem; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; }
+.btn-details { background-color: #3498db; color: white; }
+.btn-compare-select { background-color: #2ecc71; color: white; }
+
+/* ===== COMPARISON TOOL ===== */
+.compare-section { background: white; border-radius: 12px; padding: 2rem; margin: 3rem 0; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.compare-interface { margin-top: 1.5rem; }
+.compare-selectors { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 2rem; }
+.compare-dropdown { flex: 1; min-width: 220px; padding: 0.9rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+.compare-action-btn { padding: 0.9rem 2rem; background: linear-gradient(to right, #9b59b6, #8e44ad); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.compare-action-btn.secondary { background: #95a5a6; }
+.comparison-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #f8f9fa; border-radius: 8px; overflow: hidden; }
+.comparison-table th, .comparison-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+.comparison-table th { background-color: #2c3e50; color: white; }
+.highlight-spec { background-color: #e1f5fe; font-weight: 600; }
+.info-note { background: #e3f2fd; padding: 1rem; border-radius: 8px; color: #1565c0; }
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .nav-links { margin-top: 1rem; width: 100%; justify-content: center; }
+    .hero h1 { font-size: 2rem; }
+    .search-box, .filter-controls { flex-direction: column; }
+    #searchInput, #searchBtn, .filter-controls select, #resetFilters { width: 100%; }
+    .section-header { flex-direction: column; align-items: flex-start; }
+    .bike-listing, .featured-bikes { grid-template-columns: 1fr; }
+    .compare-selectors { flex-direction: column; }
+    .compare-dropdown, .compare-action-btn { width: 100%; }
+}
